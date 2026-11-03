@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zona Abitabile Mobile</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+html{color-scheme:light}
+body{margin:0}
+[hidden]{display:none!important}
+/* Layout: canvas del sistema solare a sinistra, comandi e dati a destra; su telefono tutto in colonna. */
+:root {
+  --bg: #eef1f4;
+  --surface: #ffffff;
+  --fg: #14202b;
+  --muted: #566475;
+  --line: #cfd8e0;
+  --accent: #1c8559;
+  --hot: #c4521f;
+  --cold: #2f6bc7;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1520; --surface: #131f2d; --fg: #e6edf3; --muted: #94a5b7; --line: #25364a;
+    --accent: #3fc88a; --hot: #ff8a57; --cold: #6aa3ff; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1520; --surface: #131f2d; --fg: #e6edf3; --muted: #94a5b7; --line: #25364a;
+  --accent: #3fc88a; --hot: #ff8a57; --cold: #6aa3ff; color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 32px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 20px; }
+h1 {
+  font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 5vw, 40px);
+  line-height: 1.05; letter-spacing: -0.01em; margin: 0; text-wrap: balance;
+}
+.lead { color: var(--muted); margin: 6px 0 0; max-width: 62ch; }
+.main { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 760px) { .main { grid-template-columns: minmax(0, 1fr); } }
+.sky { aspect-ratio: 1; width: 100%; max-width: 100%; border-radius: 6px; overflow: hidden; background: #060d17; }
+.sky canvas { display: block; width: 100%; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+/* i quadratini imitano i colori che le fasce hanno sul fondo scuro del canvas */
+.sw { width: 16px; height: 16px; border-radius: 3px; box-sizing: border-box; border: 1.5px solid #5ae1a0;
+  background: linear-gradient(rgba(63,200,138,0.64), rgba(63,200,138,0.64)), #060d17; }
+.sw.opt { border-style: dashed; background: linear-gradient(rgba(63,200,138,0.28), rgba(63,200,138,0.28)), #060d17; }
+.panel { display: grid; gap: 20px; min-width: 0; }
+.ctl { display: grid; gap: 6px; }
+.ctl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.ctl label { font-weight: 500; }
+.val { font-family: var(--font-mono); font-size: 20px; font-variant-numeric: tabular-nums; }
+.val small { font-size: 13px; color: var(--muted); margin-left: 3px; }
+input[type=range] { width: 100%; height: 36px; accent-color: var(--accent); margin: 0; }
+.ticks { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.hint { font-size: 13px; color: var(--muted); margin: 0; }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.presets button {
+  font: inherit; font-size: 13px; color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor: pointer;
+}
+.presets button:hover { border-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.status { padding: 12px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); display: grid; gap: 2px; }
+.status strong { font-family: var(--font-display); font-size: 19px; line-height: 1.2; }
+.status span { font-size: 13px; color: var(--muted); }
+.status[data-s="in"] { border-color: var(--accent); }
+.status[data-s="in"] strong { color: var(--accent); }
+.status[data-s="hot"] { border-color: var(--hot); }
+.status[data-s="hot"] strong { color: var(--hot); }
+.status[data-s="cold"] { border-color: var(--cold); }
+.status[data-s="cold"] strong { color: var(--cold); }
+dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; font-size: 14px; }
+dt { color: var(--muted); }
+dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+details { border-top: 1px solid var(--line); padding-top: 14px; font-size: 14px; color: var(--muted); }
+details summary { cursor: pointer; color: var(--fg); font-weight: 500; }
+details p { margin: 10px 0 0; max-width: 70ch; }
+code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>La zona abitabile</h1>
+    <p class="lead">La fascia verde è la distanza dal Sole a cui l'acqua liquida può restare in superficie. Cambia la CO₂ e l'albedo della Terra e guarda come si sposta.</p>
+  </header>
+
+  <div class="main">
+    <div>
+      <div class="sky"><canvas id="sky" aria-label="Sistema solare visto dall'alto con la zona abitabile"></canvas></div>
+      <div class="legend">
+        <span><i class="sw"></i>Zona abitabile prudente</span>
+        <span><i class="sw opt"></i>Zona abitabile ottimistica</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ctl">
+        <div class="ctl-head"><label for="co2">CO₂ nell'atmosfera</label><span class="val"><span id="co2v">420</span><small>ppm</small></span></div>
+        <input type="range" id="co2" min="0" max="1000" step="1" value="541">
+        <div class="ticks"><span>10</span><span>100</span><span>1000</span><span>10000</span></div>
+        <div class="presets" id="scen">
+          <button type="button" data-c="445">SSP1-2.6 · 445</button>
+          <button type="button" data-c="870">SSP3-7.0 · 870</button>
+          <button type="button" data-c="1100">SSP5-8.5 · 1100</button>
+        </div>
+      </div>
+
+      <div class="ctl">
+        <div class="ctl-head"><label for="alb">Albedo</label><span class="val"><span id="albv">0,30</span></span></div>
+        <input type="range" id="alb" min="0.05" max="0.8" step="0.01" value="0.3">
+        <div class="ticks"><span>Assorbimento</span><span>Riflessione</span></div>
+        <div class="presets" id="albs">
+          <button type="button" data-a="0.10">Terra urbana · 0,10</button>
+          <button type="button" data-a="0.25">Terra arida · 0,25</button>
+          <button type="button" data-a="0.30">Terra oggi · 0,30</button>
+          <button type="button" data-a="0.60">Terra ghiacciata · 0,60</button>
+        </div>
+      </div>
+
+      <div class="status" id="status" data-s="in" aria-live="polite">
+        <strong id="st1"></strong><span id="st2"></span>
+      </div>
+
+      <dl>
+        <dt>Bordo interno</dt><dd id="rin"></dd>
+        <dt>Bordo esterno</dt><dd id="rout"></dd>
+        <dt>Terra</dt><dd>1,00 AU</dd>
+        <dt>Luce utile ricevuta, rispetto a oggi</dt><dd id="flux"></dd>
+      </dl>
+    </div>
+  </div>
+
+  <details>
+    <summary>Come è calcolato</summary>
+    <p>I bordi sono quelli di Kopparapu et al. (2013) per una stella come il Sole: effetto serra incontrollato all'interno, massimo effetto serra all'esterno (prudente), Venere recente e Marte primordiale (ottimistica). Quei calcoli valgono per una Terra con albedo 0,30 e 420 ppm di CO₂.</p>
+    <p>Per far muovere i bordi uso un modello semplificato. L'albedo cambia la frazione di luce assorbita, <code>(1 − A) / 0,70</code>. La CO₂ aggiunge un forzante radiativo <code>5,35 · ln(C / 420)</code> W/m², amplificato di 2,5 volte per tenere conto del vapore acqueo. Il risultato è una luce equivalente, e da questa si ricavano le distanze.</p>
+    <p>È uno strumento per capire l'ordine di grandezza e la direzione degli effetti. Non sostituisce un modello climatico.</p>
+  </details>
+</div>
+
+<script>
+(function () {
+  // Coefficienti di Kopparapu et al. 2013 (Tab. 3): Seff_sole, a, b, c, d
+  var K = {
+    recentVenus: [1.7763, 1.4335e-4, 3.3954e-9, -7.6364e-12, -1.1950e-15],
+    runaway:     [1.0385, 1.2456e-4, 1.4612e-8, -7.6345e-12, -1.7511e-15],
+    maxGreen:    [0.3507, 5.9578e-5, 1.6707e-9, -3.0058e-12, -5.1925e-16],
+    earlyMars:   [0.3207, 5.4471e-5, 1.5275e-9, -2.1709e-12, -3.8282e-16]
+  };
+  var STAR = { L: 1, Teff: 5772 };
+  var BASE = { A0: 0.30, C0: 420, GAIN: 2.5, F0: 238 };
+  var VIEW = 2.6; // AU visibili dal centro al bordo
+
+  function seff(c, T) {
+    var t = T - 5780;
+    return c[0] + c[1] * t + c[2] * t * t + c[3] * t * t * t + c[4] * t * t * t * t;
+  }
+  var S = {};
+  for (var key in K) S[key] = seff(K[key], STAR.Teff);
+
+  var elA = document.getElementById('alb'), elC = document.getElementById('co2');
+  var canvas = document.getElementById('sky'), ctx = canvas.getContext('2d');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function fmt(x, d) { return x.toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+  function ppm() { return Math.pow(10, 1 + 3 * (+elC.value) / 1000); }
+  function sliderFor(c) { return Math.round((Math.log10(c) - 1) / 3 * 1000); }
+
+  var target = {}, cur = null, kNow = 1, running = false;
+
+  function compute() {
+    var A = +elA.value, C = ppm();
+    var dF = 5.35 * Math.log(C / BASE.C0);
+    var k = (1 - A) / (1 - BASE.A0) * (1 + BASE.GAIN * dF / BASE.F0);
+    k = Math.max(k, 0.05);
+    var d = function (s) { return Math.sqrt(STAR.L * k / s); };
+    target = { oi: d(S.recentVenus), i: d(S.runaway), o: d(S.maxGreen), oo: d(S.earlyMars) };
+    kNow = k;
+    if (!cur || reduce) cur = { oi: target.oi, i: target.i, o: target.o, oo: target.oo };
+    document.getElementById('co2v').textContent = C >= 1000 ? Math.round(C / 10) * 10 : Math.round(C);
+    document.getElementById('albv').textContent = fmt(A, 2);
+    document.getElementById('rin').textContent = fmt(target.i, 2) + ' AU';
+    document.getElementById('rout').textContent = fmt(target.o, 2) + ' AU';
+    document.getElementById('flux').textContent = fmt(k * 100, 0) + ' %';
+
+    var box = document.getElementById('status'), s1 = document.getElementById('st1'), s2 = document.getElementById('st2');
+    if (1 < target.i) {
+      box.dataset.s = 'hot'; s1.textContent = 'Troppo calda';
+      s2.textContent = 'A 1 AU la Terra è oltre il limite dell\'effetto serra incontrollato.';
+    } else if (1 > target.o) {
+      box.dataset.s = 'cold'; s1.textContent = 'Troppo fredda';
+      s2.textContent = 'A 1 AU la Terra è oltre il limite esterno: la CO₂ non basta a scaldarla.';
+    } else {
+      box.dataset.s = 'in'; s1.textContent = 'La Terra è nella zona abitabile';
+      s2.textContent = 'Acqua liquida possibile in superficie.';
+    }
+    kick();
+  }
+
+  function kick() {
+    if (reduce) { draw(); return; }
+    if (!running) { running = true; requestAnimationFrame(step); }
+  }
+  function step() {
+    var moving = false;
+    for (var n in target) {
+      var dx = target[n] - cur[n];
+      if (Math.abs(dx) > 0.0005) { cur[n] += dx * 0.18; moving = true; } else cur[n] = target[n];
+    }
+    draw();
+    if (moving) requestAnimationFrame(step); else running = false;
+  }
+
+  // stelle di sfondo, posizioni fisse
+  var stars = [], seed = 7;
+  function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+  for (var q = 0; q < 90; q++) stars.push({ x: rnd(), y: rnd(), r: 0.4 + rnd() * 0.9, a: 0.25 + rnd() * 0.5 });
+
+  var size = 400, dpr = 1;
+  function resize() {
+    var w = canvas.parentElement.clientWidth || 400;
+    dpr = window.devicePixelRatio || 1;
+    size = w;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(w * dpr);
+    draw();
+  }
+
+  var PLANETS = [
+    { n: 'Venere', r: 0.723, ang: 205, col: '#e8c27a', sz: 3.5 },
+    { n: 'Terra',  r: 1.0,   ang: 315, col: null,      sz: 5 },
+    { n: 'Marte',  r: 1.524, ang: 120, col: '#d6704a', sz: 3.5 }
+  ];
+
+  function draw() {
+    if (!cur) return;
+    var s = size, cx = s / 2, cy = s / 2, sc = (s / 2 - 10) / VIEW;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = '#060d17'; ctx.fillRect(0, 0, s, s);
+    for (var i = 0; i < stars.length; i++) {
+      var st = stars[i];
+      ctx.fillStyle = 'rgba(255,255,255,' + st.a + ')';
+      ctx.fillRect(st.x * s, st.y * s, st.r, st.r);
+    }
+    function ring(ri, ro, fill) {
+      ctx.beginPath(); ctx.arc(cx, cy, ro * sc, 0, Math.PI * 2); ctx.arc(cx, cy, ri * sc, 0, Math.PI * 2, true);
+      ctx.fillStyle = fill; ctx.fill();
+    }
+    ring(cur.oi, cur.oo, 'rgba(63,200,138,0.28)');
+    ring(cur.i, cur.o, 'rgba(63,200,138,0.5)');
+
+    [0.5, 1, 1.5, 2, 2.5].forEach(function (r) {
+      ctx.beginPath(); ctx.arc(cx, cy, r * sc, 0, Math.PI * 2);
+      ctx.strokeStyle = r === 1 ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.08)';
+      ctx.setLineDash(r === 1 ? [4, 4] : []); ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]);
+    });
+
+    // contorni: tratteggiati per l'ottimistica, pieni per la prudente
+    function edge(r, dash, w) {
+      ctx.beginPath(); ctx.arc(cx, cy, r * sc, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(90,225,160,0.95)'; ctx.lineWidth = w; ctx.setLineDash(dash); ctx.stroke(); ctx.setLineDash([]);
+    }
+    edge(cur.oi, [3, 3], 1); edge(cur.oo, [3, 3], 1);
+    edge(cur.i, [], 1.5); edge(cur.o, [], 1.5);
+
+    // etichette delle distanze in diagonale, in basso a destra
+    ctx.font = '10px "IBM Plex Mono", monospace'; ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+    var la = -8 * Math.PI / 180;
+    [0.5, 1, 1.5, 2, 2.5].forEach(function (r) {
+      var lx = cx + Math.cos(la) * r * sc, ly = cy + Math.sin(la) * r * sc;
+      var t = fmt(r, r % 1 ? 1 : 0) + ' AU', w = ctx.measureText(t).width + 6;
+      ctx.fillStyle = 'rgba(6,13,23,0.75)'; ctx.fillRect(lx - w / 2, ly - 7, w, 14);
+      ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.fillText(t, lx, ly);
+    });
+
+    var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 18);
+    g.addColorStop(0, 'rgba(255,236,170,1)'); g.addColorStop(0.35, 'rgba(255,200,90,0.5)'); g.addColorStop(1, 'rgba(255,180,60,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 18, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffe9a8'; ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.fill();
+
+    var state = document.getElementById('status').dataset.s;
+    var earthCol = state === 'in' ? '#3fc88a' : state === 'hot' ? '#ff8a57' : '#6aa3ff';
+    PLANETS.forEach(function (p) {
+      var a = p.ang * Math.PI / 180, x = cx + Math.cos(a) * p.r * sc, y = cy + Math.sin(a) * p.r * sc;
+      var col = p.col || earthCol;
+      if (!p.col) {
+        ctx.beginPath(); ctx.arc(x, y, p.sz + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = col; ctx.globalAlpha = 0.5; ctx.lineWidth = 1.5; ctx.stroke(); ctx.globalAlpha = 1;
+      }
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, p.sz, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = '11px "IBM Plex Sans", sans-serif';
+      var right = Math.cos(a) >= 0;
+      ctx.textAlign = right ? 'left' : 'right';
+      ctx.fillText(p.n, x + (right ? 1 : -1) * (p.sz + 8), y);
+    });
+    drawInset(s, sc, earthCol);
+  }
+
+  // Riquadro in basso a destra: ingrandimento radiale attorno alla Terra, Sole fuori campo a sinistra.
+  function drawInset(s, sc, earthCol) {
+    var w = Math.max(110, Math.min(190, s * 0.32)), m = 8;
+    var x0 = s - w - m, y0 = s - w - m;
+    var half = 0.4, k = (w / 2) / half;           // px per AU
+    var ex = x0 + w / 2, ey = y0 + w / 2;         // Terra al centro
+    var sx = ex - k, sy = ey;                     // posizione del Sole
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x0, y0, w, w); ctx.fillStyle = '#08111d'; ctx.fill(); ctx.clip();
+
+    function ring(ri, ro, fill) {
+      ctx.beginPath(); ctx.arc(sx, sy, ro * k, 0, Math.PI * 2); ctx.arc(sx, sy, ri * k, 0, Math.PI * 2, true);
+      ctx.fillStyle = fill; ctx.fill();
+    }
+    function edge(r, dash, wd) {
+      ctx.beginPath(); ctx.arc(sx, sy, r * k, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(90,225,160,0.95)'; ctx.lineWidth = wd; ctx.setLineDash(dash); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ring(cur.oi, cur.oo, 'rgba(63,200,138,0.28)');
+    ring(cur.i, cur.o, 'rgba(63,200,138,0.5)');
+    ctx.beginPath(); ctx.arc(sx, sy, k, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+    edge(cur.oi, [3, 3], 1); edge(cur.oo, [3, 3], 1);
+    edge(cur.i, [], 1.5); edge(cur.o, [], 1.5);
+
+    ctx.beginPath(); ctx.arc(ex, ey, 9, 0, Math.PI * 2);
+    ctx.strokeStyle = earthCol; ctx.globalAlpha = 0.5; ctx.lineWidth = 1.5; ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.fillStyle = earthCol; ctx.beginPath(); ctx.arc(ex, ey, 5, 0, Math.PI * 2); ctx.fill();
+
+    ctx.font = '10px "IBM Plex Mono", monospace'; ctx.textBaseline = 'middle';
+    function tag(xe, y, txt) {
+      var tx = Math.min(Math.max(xe, x0 + 24), x0 + w - 24);
+      if (xe < x0 + 24) txt = '◂ ' + txt; else if (xe > x0 + w - 24) txt = txt + ' ▸';
+      var tw = ctx.measureText(txt).width + 6;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(6,13,23,0.85)'; ctx.fillRect(tx - tw / 2, y - 7, tw, 14);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillText(txt, tx, y);
+    }
+    tag(sx + cur.oi * k, y0 + w - 28, fmt(cur.oi, 2));
+    tag(sx + cur.i * k, y0 + w - 12, fmt(cur.i, 2));
+
+    ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillText('Zoom Terra', x0 + 6, y0 + 10);
+    ctx.textAlign = 'right'; ctx.fillText('×' + fmt(k / sc, 1), x0 + w - 6, y0 + 10);
+    ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillText('◂ Sole', x0 + 6, ey + 22);
+    ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillText('Terra', ex, ey - 20);
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, w - 1);
+  }
+
+  function onInput() { compute(); }
+  elA.addEventListener('input', onInput);
+  elC.addEventListener('input', onInput);
+  // tipi di superficie: cambiano solo l'albedo
+  document.getElementById('albs').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    elA.value = b.dataset.a; compute();
+  });
+  // scenari di CO₂: cambiano solo la CO₂, l'albedo resta quella impostata
+  document.getElementById('scen').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    elC.value = sliderFor(+b.dataset.c); compute();
+  });
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas.parentElement);
+  else window.addEventListener('resize', resize);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+
+  compute(); resize();
+})();
+</script>
+</body>
+</html>
