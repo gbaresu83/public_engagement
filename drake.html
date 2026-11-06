@@ -92,6 +92,14 @@ button.term[aria-pressed="true"] .cap { color: var(--fg); }
 .result .n small { font-family: var(--font-body); font-weight: 400; font-size: clamp(15px, 2.4vw, 22px); letter-spacing: 0; color: var(--muted); margin-left: 10px; }
 .result .verdict { font-family: var(--font-display); font-size: clamp(19px, 2.6vw, 26px); line-height: 1.2; }
 .result .dist { font-size: 14px; color: var(--muted); }
+.result[data-hidden="1"] .n { color: var(--muted); }
+.reveal {
+  font: inherit; font-size: 14px; font-weight: 500; margin-top: 8px; padding: 8px 18px; cursor: pointer;
+  color: #fff; background: var(--accent); border: 1px solid var(--accent); border-radius: 999px;
+}
+.reveal[aria-pressed="true"] { color: var(--fg); background: var(--surface); border-color: var(--line); }
+:root[data-theme="dark"] .reveal[aria-pressed="false"] { color: #08111d; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .reveal[aria-pressed="false"] { color: #08111d; } }
 @media (max-width: 520px) { .result { grid-template-columns: minmax(0, 1fr); } }
 
 /* valori tipici: fascia separata dalla tabella */
@@ -172,6 +180,7 @@ code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
     <div>
       <div class="verdict" id="verdict"></div>
       <div class="dist" id="dist"></div>
+      <button type="button" class="reveal" id="reveal" aria-pressed="false">Mostra il risultato</button>
     </div>
   </div>
 
@@ -306,9 +315,9 @@ code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
   }
 
   // legenda del termine selezionato (click sull'equazione)
-  var selected = null, lastV = null, lastN = null;
+  var selected = null, lastV = null, lastN = null, revealed = false;
   function termValue(id) {
-    if (id === 'N') return fmt(lastN) + ' civiltà';
+    if (id === 'N') return (revealed ? fmt(lastN) : '?') + ' civiltà';
     var t = T.filter(function (x) { return x.id === id; })[0], v = lastV[id];
     return t.kind === 'pct' ? fmtPct(v) : fmt(v) + (t.unit ? ' ' + t.unit : '');
   }
@@ -356,8 +365,13 @@ code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
     } else {
       dist = 'In media, meno di una civiltà nell\'intera Galassia.';
     }
-    $('verdict').textContent = verdict;
-    $('dist').textContent = dist;
+    var lastId = T[T.length - 1].id;
+    $('nval').textContent = revealed ? fmt(N) : '?';
+    $('verdict').textContent = revealed ? verdict : 'Imposta i valori, poi scopri il risultato.';
+    $('dist').textContent = revealed ? dist : '';
+    numEls[lastId].textContent = revealed ? fmt(N) : '?';
+    fillEls[lastId].style.width = revealed ? (pos(N) * 100) + '%' : '0%';
+    document.querySelector('.result').dataset.hidden = revealed ? '0' : '1';
     lastV = v; lastN = N; renderLegend();
     var active = null;
     Object.keys(P).forEach(function (k) {
@@ -368,6 +382,13 @@ code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
     });
     $('presetnote').textContent = active ? P[active].note : 'Valori personalizzati.';
   }
+
+  $('reveal').addEventListener('click', function () {
+    revealed = !revealed;
+    this.setAttribute('aria-pressed', revealed ? 'true' : 'false');
+    this.textContent = revealed ? 'Nascondi il risultato' : 'Mostra il risultato';
+    update();
+  });
 
   T.forEach(function (t) { sliders[t.id].addEventListener('input', update); });
   $('presets').addEventListener('click', function (e) {
