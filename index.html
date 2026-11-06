@@ -63,6 +63,11 @@ h1 {
 .card h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(24px, 4vw, 32px); line-height: 1.1; margin: 0; }
 .card p { margin: 0; color: var(--muted); }
 .go { font-weight: 500; color: var(--accent); }
+/* scheda larga per le slide, sotto le due degli strumenti */
+.card.wide { grid-column: 1 / -1; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px 24px; }
+.card.wide .art { height: 84px; width: 150px; }
+.card.wide h2 { font-size: clamp(22px, 3.4vw, 28px); }
+@media (max-width: 680px) { .card.wide { grid-template-columns: minmax(0, 1fr); } .card.wide .art { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
 </style>
 </head>
@@ -70,7 +75,7 @@ h1 {
 <div class="wrap">
   <header>
     <h1>Altri mondi</h1>
-    <p class="lead">Due strumenti da provare, anche dal telefono.</p>
+    <p class="lead">Due strumenti da provare, anche dal telefono, e le slide da scaricare.</p>
   </header>
 
   <main class="cards">
@@ -107,6 +112,23 @@ h1 {
       <h2>L'equazione di Drake</h2>
       <p>Cambia i sette numeri e guarda quante civiltà potrebbero esserci nella Galassia.</p>
       <span class="go">Provalo →</span>
+    </a>
+
+    <a class="card wide" href="slides.pdf" download>
+      <div class="art" aria-hidden="true">
+        <svg viewBox="0 0 150 84" preserveAspectRatio="xMidYMid meet">
+          <rect x="35" y="10" width="80" height="45" rx="4" fill="#12202f" stroke="#3fc88a" stroke-width="1.5"/>
+          <circle cx="75" cy="32" r="9" fill="none" stroke="#3fc88a" stroke-width="1.5"/>
+          <circle cx="75" cy="32" r="3.5" fill="#ffc85a"/>
+          <rect x="45" y="62" width="60" height="4" rx="2" fill="#3fc88a" opacity=".5"/>
+          <rect x="55" y="70" width="40" height="4" rx="2" fill="#3fc88a" opacity=".3"/>
+        </svg>
+      </div>
+      <div>
+        <h2>Le slide</h2>
+        <p>La presentazione completa, in PDF.</p>
+      </div>
+      <span class="go">Scarica →</span>
     </a>
   </main>
 </div>
