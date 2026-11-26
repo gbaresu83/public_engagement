@@ -149,7 +149,7 @@ code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
   <details>
     <summary>Come è calcolato</summary>
     <p>I bordi sono quelli di Kopparapu et al. (2013) per una stella come il Sole: effetto serra incontrollato all'interno, massimo effetto serra all'esterno (prudente), Venere recente e Marte primordiale (ottimistica). Quei calcoli valgono per una Terra con albedo 0,30 e 420 ppm di CO₂.</p>
-    <p>Per far muovere i bordi uso un modello semplificato. L'albedo cambia la frazione di luce assorbita, <code>(1 − A) / 0,70</code>. La CO₂ aggiunge un forzante radiativo <code>5,35 · ln(C / 420)</code> W/m², tradotto in una luce equivalente. Il fattore di conversione è scelto in modo che la Terra esca dalla zona a circa 30 000 ppm, la stima più prudente in letteratura (Goldblatt et al. 2013). I modelli climatici 3D danno soglie molto più alte, oltre 200 000 ppm (Wolf e Toon 2015). Da questa luce equivalente si ricavano le distanze.</p>
+    <p>Per far muovere i bordi uso un modello semplificato. L'albedo cambia la frazione di luce assorbita, <code>(1 − A) / 0,70</code>. La CO₂ aggiunge un forzante radiativo <code>5,35 · ln(C / 420)</code> W/m², tradotto in una luce equivalente. Il fattore di conversione è scelto in modo che la Terra esca dalla zona a 10 000 ppm, una scelta ancora più prudente della stima più bassa in letteratura, circa 30 000 ppm (Goldblatt et al. 2013). I modelli climatici 3D danno soglie molto più alte, oltre 200 000 ppm (Wolf e Toon 2015). Da questa luce equivalente si ricavano le distanze.</p>
     <p>È uno strumento per capire l'ordine di grandezza e la direzione degli effetti. Non sostituisce un modello climatico.</p>
   </details>
   <footer class="credit">Sviluppato da Giambattista Aresu · Osservatorio Astronomico di Cagliari</footer>
@@ -168,7 +168,7 @@ code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
   // Soglia di CO2 oltre la quale la Terra (albedo 0,30) esce dalla zona abitabile: stima prudente, la più bassa
 // della letteratura (Goldblatt et al. 2013, circa 30 000 ppm). I modelli 3D danno valori molto più alti
 // (Wolf & Toon 2015, oltre 0,2 bar, cioè circa 200 000 ppm). Il guadagno si ricava da qui.
-var BASE = { A0: 0.30, C0: 420, F0: 238, CO2_EXIT: 30000, GAIN: 0 };
+var BASE = { A0: 0.30, C0: 420, F0: 238, CO2_EXIT: 10000, GAIN: 0 };
   var VIEW = 2.6; // AU visibili dal centro al bordo
 
   function seff(c, T) {
