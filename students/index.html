@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tirocini e tesi – cp_zephyr</title>
+<style>
+:root{
+  --bg:#0b1026; --card:#121a3d; --line:#2b3668; --fg:#f2f4ff; --dim:#9aa4d0;
+  --gold:#ffd166; --cyan:#4cc9f0; --green:#80ed99; --pink:#ef476f;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:24px 16px 56px}
+header{text-align:center;padding:8px 0 20px}
+h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.2;margin:.2em 0 .3em}
+.sub{color:var(--dim);margin:0}
+.lang{display:flex;justify-content:center;gap:8px;margin:18px 0 6px}
+.lang button{background:transparent;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:6px 16px;font:inherit;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--gold);color:#2a1d00;border-color:var(--gold);font-weight:600}
+h2{font-size:1.15rem;color:var(--gold);margin:34px 0 12px;letter-spacing:.02em;text-transform:uppercase}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;margin:0 0 14px}
+.card h3{margin:0 0 8px;font-size:1.12rem;line-height:1.3}
+.card p{margin:0;color:#dfe3ff}
+.tag{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:6px;padding:2px 8px;margin-bottom:8px}
+.t-int{background:rgba(76,201,240,.16);color:var(--cyan)}
+.t-the{background:rgba(128,237,153,.16);color:var(--green)}
+.info{background:transparent;border:1px solid var(--line);border-radius:14px;padding:6px 18px;margin-top:8px}
+.info dl{margin:0}
+.info div{display:grid;grid-template-columns:minmax(120px,32%) 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.info div:last-child{border-bottom:0}
+.info dt{color:var(--dim)}
+.info dd{margin:0}
+a{color:var(--cyan)}
+footer{color:var(--dim);font-size:.9rem;text-align:center;margin-top:30px}
+[data-l]{display:none}
+html[data-lang="it"] [data-l="it"], html[data-lang="en"] [data-l="en"]{display:revert}
+@media (max-width:520px){.info div{grid-template-columns:1fr;gap:2px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1><span data-l="it">Tirocini e tesi in Fisica</span><span data-l="en">Internships and theses in Physics</span></h1>
+  <p class="sub"><span data-l="it">Simulare le atmosfere degli esopianeti con cp_zephyr: chimica, nubi e spettri</span><span data-l="en">Simulating exoplanet atmospheres with cp_zephyr: chemistry, clouds and spectra</span></p>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-set="it">Italiano</button>
+    <button type="button" data-set="en">English</button>
+  </div>
+</header>
+
+<h2><span data-l="it">Tirocini</span><span data-l="en">Internships</span></h2>
+
+<div class="card">
+  <span class="tag t-int"><span data-l="it">Tirocinio</span><span data-l="en">Internship</span></span>
+  <h3><span data-l="it">Costruisci 100 pianeti: un atlante di atmosfere esoplanetarie</span><span data-l="en">Build 100 planets: an atlas of exoplanet atmospheres</span></h3>
+  <p data-l="it">Con il codice cp_zephyr, che simula chimica, nubi e spettri delle atmosfere planetarie, lo studente genera una griglia di circa 100 modelli cambiando temperatura di equilibrio, metallicità e gravità del pianeta, a parità di stella ospite, temperatura interna e parametri delle nubi. Poi esplora come cambiano composizione chimica, nubi e spettri di trasmissione. Il risultato finale è un atlante visivo dei mondi simulati.</p>
+  <p data-l="en">Using cp_zephyr, a code that models the chemistry, clouds and spectra of planetary atmospheres, the student builds a grid of about 100 models across the planet's equilibrium temperature, metallicity and gravity, keeping the host star, internal temperature and cloud parameters fixed. They then explore how chemical composition, clouds and transmission spectra change. The final product is a visual atlas of the simulated worlds.</p>
+</div>
+
+<div class="card">
+  <span class="tag t-int"><span data-l="it">Tirocinio</span><span data-l="en">Internship</span></span>
+  <h3><span data-l="it">Le nubi che nascondono un pianeta: HD 189733b con Hubble e JWST</span><span data-l="en">The clouds that hide a planet: HD 189733b with Hubble and JWST</span></h3>
+  <p data-l="it">Lo studente modella con cp_zephyr l'atmosfera del gioviano caldo HD 189733b, con e senza nubi. Cambiando l'efficienza di sedimentazione (f_sed) studia come le nubi attenuano le bande molecolari. Infine confronta i modelli forward con gli spettri di trasmissione osservati da HST e JWST.</p>
+  <p data-l="en">The student uses cp_zephyr to model the atmosphere of the hot Jupiter HD 189733b, with and without clouds. By varying the sedimentation efficiency (f_sed), they study how clouds mute molecular features. Finally, they compare the forward models with the transmission spectra observed by HST and JWST.</p>
+</div>
+
+<div class="info">
+  <dl>
+    <div><dt><span data-l="it">Referente OAC</span><span data-l="en">OAC supervisor</span></dt><dd>Giambattista Aresu</dd></div>
+    <div><dt><span data-l="it">Livello</span><span data-l="en">Level</span></dt><dd><span data-l="it">Laurea Triennale o Magistrale</span><span data-l="en">Bachelor's or Master's degree</span></dd></div>
+    <div><dt><span data-l="it">Corso di laurea</span><span data-l="en">Degree programme</span></dt><dd><span data-l="it">Fisica</span><span data-l="en">Physics</span></dd></div>
+    <div><dt><span data-l="it">CFU</span><span data-l="en">ECTS</span></dt><dd>3 (75 h)</dd></div>
+    <div><dt><span data-l="it">Durata</span><span data-l="en">Duration</span></dt><dd><span data-l="it">1–2 mesi</span><span data-l="en">1–2 months</span></dd></div>
+    <div><dt><span data-l="it">Prerequisiti</span><span data-l="en">Prerequisites</span></dt><dd>
+      <span data-l="it">Infarinatura di Python e Fortran (non indispensabile: non conoscerli non preclude il tirocinio, ciò che manca si impara strada facendo).</span>
+      <span data-l="en">Basic knowledge of Python and Fortran (not essential: not knowing them does not rule out the internship, whatever is missing can be learned along the way).</span></dd></div>
+  </dl>
+</div>
+
+<h2><span data-l="it">Tesi</span><span data-l="en">Theses</span></h2>
+
+<div class="card">
+  <span class="tag t-the"><span data-l="it">Tesi</span><span data-l="en">Thesis</span></span>
+  <h3><span data-l="it">Il vertical mixing che cambia la chimica: K<sub>zz</sub> e chimica fuori equilibrio negli esopianeti</span><span data-l="en">Mixing that reshapes chemistry: K<sub>zz</sub> and disequilibrium chemistry in exoplanet atmospheres</span></h3>
+  <p data-l="it">Con il codice cinetico cp_zephyr lo studente studia come il vertical mixing (K<sub>zz</sub>) modifica le abbondanze delle specie sensibili al quenching (CH₄, NH₃, CO, CO₂, HCN). Lo fa al variare di temperatura di equilibrio, temperatura interna e metallicità, e individua quali effetti si vedono negli spettri di trasmissione JWST. Come caso pratico, il modello viene applicato al nettuno caldo WASP-107b, dove JWST ha misurato una forte deplezione di metano. L'obiettivo è vincolare K<sub>zz</sub> e temperatura interna confrontando i dati con una griglia di modelli diretti, e discutere le stime discordanti presenti in letteratura, legate in buona parte alla degenerazione con la metallicità.</p>
+  <p data-l="en">Using the kinetic code cp_zephyr, the student studies how vertical mixing (K<sub>zz</sub>) changes the abundances of quench-sensitive species (CH₄, NH₃, CO, CO₂, HCN). They vary equilibrium temperature, internal temperature and metallicity, and identify which effects show up in JWST transmission spectra. As a practical case, the model is applied to the warm Neptune WASP-107b, where JWST measured a strong methane depletion. The goal is to constrain K<sub>zz</sub> and the internal temperature by comparing the data with a grid of forward models, and to discuss the conflicting estimates in the literature, which largely stem from the degeneracy with metallicity.</p>
+</div>
+
+<div class="card">
+  <span class="tag t-the"><span data-l="it">Tesi</span><span data-l="en">Thesis</span></span>
+  <h3><span data-l="it">Mini-Nettuno o super-Terra? Leggere la composizione di un sub-Nettuno nel suo spettro</span><span data-l="en">Mini-Neptune or super-Earth? Reading a sub-Neptune's composition in its spectrum</span></h3>
+  <p data-l="it">I sub-Nettuni sono tra i pianeti più comuni scoperti finora, ma non sappiamo se abbiano un involucro di idrogeno, come i pianeti giganti, o un'atmosfera pesante, simile a quella dei pianeti rocciosi, con casi intermedi come i mondi ricchi d'acqua. Lo studente esplora con cp_zephyr, partendo da una rete chimica già adattata dal referente, come cambia la chimica passando da un'atmosfera dominata da H₂ a una ricca di H₂O, CO₂ e N₂: quali specie e reazioni diventano importanti e perché la rete chimica va adattata. Poi confronta gli spettri di trasmissione dei diversi casi e individua le differenze osservabili, come l'ampiezza delle bande e le molecole che compaiono o spariscono. Come caso pratico, i modelli vengono confrontati con lo spettro JWST di un sub-Nettuno noto (es. GJ 1214b o TOI-270 d).</p>
+  <p data-l="en">Sub-Neptunes are among the most common planets found so far, yet we do not know whether they hold a hydrogen envelope, like the giant planets, or a heavy atmosphere like those of rocky planets, with intermediate cases such as water-rich worlds. Using cp_zephyr, starting from a chemical network already adapted by the supervisor, the student explores how the chemistry changes from an H₂-dominated atmosphere to one rich in H₂O, CO₂ and N₂: which species and reactions become important, and why the chemical network has to be adapted. They then compare the transmission spectra of the different cases and identify the observable differences, such as band amplitudes and the molecules that appear or disappear. As a practical case, the models are compared with the JWST spectrum of a known sub-Neptune (e.g. GJ 1214b or TOI-270 d).</p>
+</div>
+
+<div class="info">
+  <dl>
+    <div><dt><span data-l="it">Livello</span><span data-l="en">Level</span></dt><dd><span data-l="it">Laurea Triennale o Magistrale</span><span data-l="en">Bachelor's or Master's degree</span></dd></div>
+    <div><dt><span data-l="it">Corso di laurea</span><span data-l="en">Degree programme</span></dt><dd><span data-l="it">Fisica</span><span data-l="en">Physics</span></dd></div>
+  </dl>
+</div>
+
+<h2><span data-l="it">Contatto</span><span data-l="en">Contact</span></h2>
+<div class="card">
+  <p><span data-l="it">Scrivimi per un colloquio o per proporre un'idea tua:</span><span data-l="en">Write to me for an informal chat, or to propose an idea of your own:</span><br>
+  <a href="mailto:giambattista.aresu@inaf.it">giambattista.aresu@inaf.it</a></p>
+</div>
+
+<footer>cp_zephyr · INAF – Osservatorio Astronomico di Cagliari</footer>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, KEY='tt_lang';
+  function set(l){
+    root.setAttribute('data-lang',l); root.lang=l;
+    document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.set===l?'true':'false')});
+    try{localStorage.setItem(KEY,l)}catch(e){}
+  }
+  var l='it';
+  try{l=localStorage.getItem(KEY)||''}catch(e){}
+  if(l!=='it'&&l!=='en') l=(navigator.language||'it').toLowerCase().indexOf('it')===0?'it':'en';
+  set(l);
+  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){set(b.dataset.set)})});
+})();
+</script>
+</body>
+</html>
