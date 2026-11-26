@@ -112,8 +112,8 @@ code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
     <div class="panel">
       <div class="ctl">
         <div class="ctl-head"><label for="co2">CO₂ nell'atmosfera</label><span class="val"><span id="co2v">420</span><small>ppm</small></span></div>
-        <input type="range" id="co2" min="0" max="1000" step="1" value="541">
-        <div class="ticks"><span>10</span><span>100</span><span>1000</span><span>10000</span></div>
+        <input type="range" id="co2" min="0" max="1000" step="1" value="406">
+        <div class="ticks"><span>10</span><span>100</span><span>1000</span><span>10000</span><span>100000</span></div>
         <div class="presets" id="scen">
           <button type="button" data-c="445">SSP1-2.6 · 445</button>
           <button type="button" data-c="870">SSP3-7.0 · 870</button>
@@ -149,7 +149,7 @@ code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
   <details>
     <summary>Come è calcolato</summary>
     <p>I bordi sono quelli di Kopparapu et al. (2013) per una stella come il Sole: effetto serra incontrollato all'interno, massimo effetto serra all'esterno (prudente), Venere recente e Marte primordiale (ottimistica). Quei calcoli valgono per una Terra con albedo 0,30 e 420 ppm di CO₂.</p>
-    <p>Per far muovere i bordi uso un modello semplificato. L'albedo cambia la frazione di luce assorbita, <code>(1 − A) / 0,70</code>. La CO₂ aggiunge un forzante radiativo <code>5,35 · ln(C / 420)</code> W/m², amplificato di 2,5 volte per tenere conto del vapore acqueo. Il risultato è una luce equivalente, e da questa si ricavano le distanze.</p>
+    <p>Per far muovere i bordi uso un modello semplificato. L'albedo cambia la frazione di luce assorbita, <code>(1 − A) / 0,70</code>. La CO₂ aggiunge un forzante radiativo <code>5,35 · ln(C / 420)</code> W/m², tradotto in una luce equivalente. Il fattore di conversione è scelto in modo che la Terra esca dalla zona a circa 30 000 ppm, la stima più prudente in letteratura (Goldblatt et al. 2013). I modelli climatici 3D danno soglie molto più alte, oltre 200 000 ppm (Wolf e Toon 2015). Da questa luce equivalente si ricavano le distanze.</p>
     <p>È uno strumento per capire l'ordine di grandezza e la direzione degli effetti. Non sostituisce un modello climatico.</p>
   </details>
   <footer class="credit">Sviluppato da Giambattista Aresu · Osservatorio Astronomico di Cagliari</footer>
@@ -165,7 +165,10 @@ code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
     earlyMars:   [0.3207, 5.4471e-5, 1.5275e-9, -2.1709e-12, -3.8282e-16]
   };
   var STAR = { L: 1, Teff: 5772 };
-  var BASE = { A0: 0.30, C0: 420, GAIN: 2.5, F0: 238 };
+  // Soglia di CO2 oltre la quale la Terra (albedo 0,30) esce dalla zona abitabile: stima prudente, la più bassa
+// della letteratura (Goldblatt et al. 2013, circa 30 000 ppm). I modelli 3D danno valori molto più alti
+// (Wolf & Toon 2015, oltre 0,2 bar, cioè circa 200 000 ppm). Il guadagno si ricava da qui.
+var BASE = { A0: 0.30, C0: 420, F0: 238, CO2_EXIT: 30000, GAIN: 0 };
   var VIEW = 2.6; // AU visibili dal centro al bordo
 
   function seff(c, T) {
@@ -174,14 +177,16 @@ code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
   }
   var S = {};
   for (var key in K) S[key] = seff(K[key], STAR.Teff);
+  // con k = S.runaway il bordo interno arriva a 1 AU: il forzante di CO2 a CO2_EXIT deve portare k a quel valore
+  BASE.GAIN = (S.runaway - 1) * BASE.F0 / (5.35 * Math.log(BASE.CO2_EXIT / BASE.C0));
 
   var elA = document.getElementById('alb'), elC = document.getElementById('co2');
   var canvas = document.getElementById('sky'), ctx = canvas.getContext('2d');
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function fmt(x, d) { return x.toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d }); }
-  function ppm() { return Math.pow(10, 1 + 3 * (+elC.value) / 1000); }
-  function sliderFor(c) { return Math.round((Math.log10(c) - 1) / 3 * 1000); }
+  function ppm() { return Math.pow(10, 1 + 4 * (+elC.value) / 1000); }
+  function sliderFor(c) { return Math.round((Math.log10(c) - 1) / 4 * 1000); }
 
   var target = {}, cur = null, kNow = 1, running = false;
 
@@ -194,7 +199,7 @@ code { font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
     target = { oi: d(S.recentVenus), i: d(S.runaway), o: d(S.maxGreen), oo: d(S.earlyMars) };
     kNow = k;
     if (!cur || reduce) cur = { oi: target.oi, i: target.i, o: target.o, oo: target.oo };
-    document.getElementById('co2v').textContent = C >= 1000 ? Math.round(C / 10) * 10 : Math.round(C);
+    document.getElementById('co2v').textContent = C >= 10000 ? Math.round(C / 100) * 100 : C >= 1000 ? Math.round(C / 10) * 10 : Math.round(C);
     document.getElementById('albv').textContent = fmt(A, 2);
     document.getElementById('rin').textContent = fmt(target.i, 2) + ' AU';
     document.getElementById('rout').textContent = fmt(target.o, 2) + ' AU';
